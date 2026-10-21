@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>ProEstate ROI | المحلل الذكي للاستثمار العقاري</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Cairo & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- React & ReactDOM UMD -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel Standalone -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Cairo', 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      -webkit-tap-highlight-color: transparent;
+    }
+    [dir="ltr"] body {
+      font-family: 'Inter', 'Cairo', sans-serif;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    /* Print / PDF Styles */
+    @media print {
+      body {
+        background: #ffffff !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-only {
+        display: block !important;
+      }
+      .print-break-inside-avoid {
+        break-inside: avoid;
+      }
+      .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl {
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    // --- SVG Icons ---
+    const Icon = ({ name, className = "w-5 h-5" }) => {
+      const icons = {
+        building: (
+          <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+        ),
+        chart: (
+          <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        ),
+        table: (
+          <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+        ),
+        sliders: (
+          <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+          </svg>
+        ),
+        globe: (
+          <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+          </svg>
+        ),
+        download: (
+          <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+        ),
+        printer: (
+          <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+        ),
+        trendingUp: (
+          <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+          </svg>
+        ),
+        wallet: (
+          <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+          </svg>
+        ),
+        shieldCheck: (
+          <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        ),
+        clock: (
+          <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        ),
+        info: (
+          <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        )
+      };
+      return icons[name] || null;
+    };
+
+    // --- Dictionary (AR / EN) ---
+    const translations = {
+      ar: {
+        appTitle: "المحلل الذكي للاستثمار العقاري",
+        appSubtitle: "تحليل العوائد والتدفقات النقدية للعقارات الجاهزة وتحت الإنشاء (Off-Plan)",
+        navInputs: "المدخلات",
+        navDashboard: "المؤشرات والرسوم",
+        navSchedule: "جدول التدفقات",
+        navGlossary: "دليل المؤشرات",
+        exportExcel: "تصدير Excel",
+        exportPDF: "تقرير PDF",
+        presetsTitle: "سيناريوهات جاهزة سريعة:",
+        presetOffPlan: "عقار تحت الإنشاء (تقسيط 8 سنوات)",
+        presetCommercial: "مكتب إداري/تجاري (عائد مرتفع)",
+        presetReady: "عقار جاهز (استلام فوري)",
+        secProperty: "1. بيانات العقار وخطة السداد للمطور",
+        secBullet: "2. الدفعات السنوية الإضافية والصيانة",
+        secRental: "3. التسليم والتأجير والنمو السنوي",
+        propertyName: "اسم العقار / المشروع",
+        totalPrice: "إجمالي سعر العقار التعاقدي",
+        currency: "ج.م",
+        downPaymentPct: "نسبة المقدم (%)",
+        downPaymentVal: "قيمة المقدم",
+        installmentYears: "سنوات التقسيط (مع المطور بدون فوائد)",
+        hasBullet: "توجد دفعات سنوية إضافية (بخلاف الأقساط الدورية)",
+        bulletAmount: "قيمة الدفعة السنوية الواحدة",
+        bulletYears: "عدد سنوات الدفعات السنوية",
+        bulletIncluded: "الدفعات السنوية مخصومة من أصل سعر العقار؟",
+        bulletIncludedYes: "نعم (ضمن السعر التعاقدي)",
+        bulletIncludedNo: "لا (تُضاف فوق الأقساط)",
+        maintPct: "وديعة الصيانة (% من سعر العقار)",
+        maintYear: "سنة سداد وديعة الصيانة (قبل/مع الاستلام)",
+        finishingCost: "تكلفة تشطيب / فرش عند الاستلام (اختياري)",
+        deliveryYear: "سنة استلام العقار وبداية التشغيل",
+         deliveryNote: "(1 = بداية السنة الأولى، 4 = بعد 3 سنوات إنشاء)",
+        initialAnnualRent: "الإيجار السنوي المتوقع (عند بداية التأجير)",
+        rentEscalation: "نسبة الزيادة السنوية في الإيجار (%)",
+        opexPct: "مصاريف تشغيل وإدارة سنوية (% من الإيجار)",
+        appreciationPct: "نسبة الزيادة السنوية في قيمة العقار (%)",
+        analysisHorizon: "مدة الدراسة الاستثمارية (سنوات)",
+        selectedYearLabel: "عرض مؤشرات السنة رقم:",
+        yearUnit: "سنة",
+        yearWord: "السنة",
+        kpiEquityPaid: "المدفوع الفعلي (Equity Paid)",
+        kpiEquityPaidSub: "إجمالي ما دُفع من الجيب حتى هذه السنة",
+        kpiNetEquity: "صافي رأس المال المستثمر (Net Equity Invested)",
+        kpiNetEquitySub: "المدفوع مطروحاً منه صافي الإيجارات المحصلة",
+        kpiNetCashFlow: "صافي التدفق النقدي السنوي (Net Cash Flow)",
+        kpiNetCashFlowSub: "الإيجار الصافي ناقص الأقساط والدفعات للسنة",
+        kpiCoC: "العائد النقدي (Cash on Cash)",
+        kpiCoCSub: "التدفق النقدي السنوي ÷ إجمالي المدفوع (Equity Paid)",
+        kpiROI: "العائد الكلي على الاستثمار (Total ROI)",
+        kpiROISub: "(صافي الإيجارات المتراكمة + زيادة قيمة العقار) ÷ إجمالي المدفوع",
+        kpiROE: "العائد على حقوق الملكية (ROE)",
+        kpiROESub: "(ربح السنة التشغيلي + نمو القيمة) ÷ حقوق الملكية الصافية",
+        kpiROA: "العائد على الأصول (ROA)",
+        kpiROASub: "صافي الدخل التشغيلي السنوي (NOI) ÷ القيمة السوقية للعقار",
+        kpiCapRecovery: "معدل استرداد رأس المال",
+        kpiCapRecoverySub: "نسبة ما تم استرداده من إجمالي المدفوع عبر الإيجار",
+        breakevenTitle: "تحليل نقطة التعادل واسترداد رأس المال (Break-Even & Payback)",
+        opBreakeven: "نقطة التعادل التشغيلي السنوي",
+        opBreakevenDesc: "أول سنة يغطي فيها صافي الإيجار كامل القسط السنوي",
+        fullPayback: "نقطة استرداد رأس المال بالكامل (Payback Period)",
+        fullPaybackDesc: "السنة التي تتعادل فيها الإيجارات التراكمية مع كل ما دُفع",
+        notReached: "بعد مدة الدراسة",
+        chartCashFlowTitle: "تطور التدفق النقدي السنوي والتراكمي",
+        chartEquityTitle: "مقارنة المدفوع الفعلي وصافي رأس المال وقيمة العقار",
+        legendNetCF: "صافي التدفق السنوي",
+        legendCumCF: "التدفق النقدي التراكمي",
+        legendEquityPaid: "المدفوع التراكمي (Equity Paid)",
+        legendNetEquity: "صافي رأس المال (Net Equity)",
+        legendPropVal: "القيمة السوقية للعقار",
+        tableYear: "السنة",
+        tableStatus: "الحالة",
+        statusConstruction: "تحت الإنشاء",
+        statusHandover: "سنة الاستلام",
+        statusRented: "مؤجر / تشغيلي",
+        tableOutflow: "المدفوعات (أقساط + دفعات + صيانة)",
+        tableRent: "صافي الإيجار (NOI)",
+        tableNetCF: "صافي التدفق (Net CF)",
+        tableEquityPaid: "المدفوع التراكمي (Equity Paid)",
+        tableNetEquity: "صافي المستثمر (Net Equity)",
+        tableCoC: "Cash on Cash",
+        tableROI: "ROI الكلي",
+        tableROE: "ROE",
+        tableROA: "ROA",
+        summaryTotalCost: "إجمالي التكلفة الرأسمالية (شاملة الصيانة والتشطيب)",
+        summaryTotalRent: "إجمالي صافي الإيجارات خلال الدراسة",
+        summaryFinalValue: "القيمة السوقية للعقار بنهاية الدراسة",
+        summaryNetProfit: "صافي الثروة المحققة (إيجارات + نمو عقاري - تكاليف)",
+      },
+      en: {
+        appTitle: "ProEstate ROI & Off-Plan Analyzer",
+        appSubtitle: "Advanced Real Estate Financial Modeling for Off-Plan & Ready Properties",
+        navInputs: "Inputs",
+        navDashboard: "Dashboard & Charts",
+        navSchedule: "Cash Flow Table",
+        navGlossary: "Metrics Guide",
+        exportExcel: "Export Excel",
+        exportPDF: "PDF Report",
+        presetsTitle: "Quick Presets:",
+        presetOffPlan: "Off-Plan Unit (8-Yr Developer Plan)",
+        presetCommercial: "Commercial/Admin Office (High Yield)",
+        presetReady: "Ready Property (Immediate Rent)",
+        secProperty: "1. Property & Developer Payment Plan",
+        secBullet: "2. Annual Bullet Payments & Maintenance",
+        secRental: "3. Handover, Rental & Escalation",
+        propertyName: "Property / Project Name",
+        totalPrice: "Total Contract Price",
+        currency: "EGP",
+        downPaymentPct: "Down Payment (%)",
+        downPaymentVal: "Down Payment Amount",
+        installmentYears: "Installment Years (0% Developer Plan)",
+        hasBullet: "Has Annual Bullet Payments (Besides regular installments)",
+        bulletAmount: "Annual Bullet Payment Amount",
+        bulletYears: "Number of Annual Bullet Payments",
+        bulletIncluded: "Are Bullet Payments part of Contract Price?",
+        bulletIncludedYes: "Yes (Deducted from regular installments)",
+        bulletIncludedNo: "No (Paid in addition to contract price)",
+        maintPct: "Maintenance Deposit (% of Price)",
+        maintYear: "Maintenance Payment Year (Before/At Delivery)",
+        finishingCost: "Finishing / Furnishing Cost at Delivery",
+        deliveryYear: "Delivery & Rent Start Year",
+        deliveryNote: "(1 = Start of Year 1, 4 = After 3 yrs construction)",
+        initialAnnualRent: "Expected Initial Annual Rent (at Delivery)",
+        rentEscalation: "Annual Rent Escalation (%)",
+        opexPct: "Annual Operating Expenses (% of Rent)",
+        appreciationPct: "Annual Property Appreciation (%)",
+        analysisHorizon: "Investment Analysis Horizon (Years)",
+        selectedYearLabel: "Show Metrics for Year:",
+        yearUnit: "Yrs",
+        yearWord: "Year",
+        kpiEquityPaid: "Equity Paid (Cumulative Outflow)",
+        kpiEquityPaidSub: "Total cash paid out of pocket up to selected year",
+        kpiNetEquity: "Net Equity Invested",
+        kpiNetEquitySub: "Equity Paid minus cumulative net rental income",
+        kpiNetCashFlow: "Annual Net Cash Flow",
+        kpiNetCashFlowSub: "Annual Net Rent (NOI) minus Annual Outflows",
+        kpiCoC: "Cash on Cash Return (CoC)",
+        kpiCoCSub: "Annual Net Cash Flow ÷ Cumulative Equity Paid",
+        kpiROI: "Total Return on Investment (ROI)",
+        kpiROISub: "(Cum. Net Rent + Capital Appreciation) ÷ Equity Paid",
+        kpiROE: "Return on Equity (ROE)",
+        kpiROESub: "(Annual NOI + Annual Appreciation) ÷ Current Net Equity Value",
+        kpiROA: "Return on Assets (ROA)",
+        kpiROASub: "Annual Net Operating Income (NOI) ÷ Current Property Value",
+        kpiCapRecovery: "Capital Recovery Rate",
+        kpiCapRecoverySub: "% of Equity Paid recovered through net rental income",
+        breakevenTitle: "Break-Even & Capital Recovery Analysis",
+        opBreakeven: "Annual Cash Flow Break-Even Year",
+        opBreakevenDesc: "First year where Net Rent covers annual installments",
+        fullPayback: "Full Capital Payback Period",
+        fullPaybackDesc: "Year when cumulative net rent equals total cash paid",
+        notReached: "Beyond Horizon",
+        chartCashFlowTitle: "Annual vs. Cumulative Net Cash Flow",
+        chartEquityTitle: "Equity Paid vs. Net Equity Invested vs. Asset Value",
+        legendNetCF: "Annual Net Cash Flow",
+        legendCumCF: "Cumulative Net Cash Flow",
+        legendEquityPaid: "Equity Paid",
+        legendNetEquity: "Net Equity Invested",
+        legendPropVal: "Property Market Value",
+        tableYear: "Year",
+        tableStatus: "Status",
+        statusConstruction: "Off-Plan",
+        statusHandover: "Handover",
+        statusRented: "Leased",
+        tableOutflow: "Total Outflow",
+        tableRent: "Net Rent (NOI)",
+        tableNetCF: "Net Cash Flow",
+        tableEquityPaid: "Equity Paid",
+        tableNetEquity: "Net Equity Invested",
+        tableCoC: "Cash on Cash",
+        tableROI: "Total ROI",
+        tableROE: "ROE",
+        tableROA: "ROA",
+        summaryTotalCost: "Total Capital Committed (Price + Maint. + Finishing)",
+        summaryTotalRent: "Total Cumulative Net Rental Income",
+        summaryFinalValue: "Projected Property Value at Horizon End",
+        summaryNetProfit: "Total Net Wealth Created (Rent + Appreciation - Cost)",
+      }
+    };
+
+    const App = () => {
+      const [lang, setLang] = useState("ar");
+      const [activeTab, setActiveTab] = useState("dashboard");
+
+      // Financial Inputs State
+      const [inputs, setInputs] = useState({
+        propertyName: "وحدة استثمارية - التجمع / زايد",
+        totalPrice: 6000000,
+        downPaymentPct: 10,
+        installmentYears: 8,
+        hasBullet: true,
+        bulletAmount: 250000,
+        bulletYears: 4,
+        bulletIncluded: true,
+        maintPct: 8,
+        maintYear: 4,
+        finishingCost: 300000,
+        deliveryYear: 4,
+        initialAnnualRent: 550000,
+        rentEscalation: 10,
+        opexPct: 5,
+        appreciationPct: 12,
+        analysisHorizon: 15,
+      });
+
+      const [selectedYear, setSelectedYear] = useState(8);
+
+      const t = translations[lang];
+      const isRTL = lang === "ar";
+
+      const updateInput = (key, value) => {
+        setInputs((prev) => ({
+          ...prev,
+          [key]: value,
+        }));
+      };
+
+      const applyPreset = (type) => {
+        if (type === "offplan") {
+          setInputs({
+            propertyName: lang === "ar" ? "شقة فندقية تحت الإنشاء (8 سنوات)" : "Off-Plan Serviced Apt (8 Yrs)",
+            totalPrice: 6000000,
+            downPaymentPct: 10,
+            installmentYears: 8,
+            hasBullet: true,
+            bulletAmount: 250000,
+            bulletYears: 4,
+            bulletIncluded: true,
+            maintPct: 8,
+            maintYear: 4,
+            finishingCost: 300000,
+            deliveryYear: 4,
+            initialAnnualRent: 550000,
+            rentEscalation: 10,
+            opexPct: 5,
+            appreciationPct: 12,
+            analysisHorizon: 15,
+          });
+          setSelectedYear(8);
+        } else if (type === "commercial") {
+          setInputs({
+            propertyName: lang === "ar" ? "مكتب إداري بالعاصمة / التجمع" : "Grade-A Admin Office",
+            totalPrice: 9500000,
+            downPaymentPct: 15,
+            installmentYears: 6,
+            hasBullet: true,
+            bulletAmount: 400000,
+            bulletYears: 3,
+            bulletIncluded: true,
+            maintPct: 10,
+            maintYear: 3,
+            finishingCost: 600000,
+            deliveryYear: 3,
+            initialAnnualRent: 1100000,
+            rentEscalation: 12,
+            opexPct: 5,
+            appreciationPct: 14,
+            analysisHorizon: 12,
+          });
+          setSelectedYear(6);
+        } else if (type === "ready") {
+          setInputs({
+            propertyName: lang === "ar" ? "عقار جاهز استلام فوري بالتقسيط" : "Ready To Move Property",
+            totalPrice: 5000000,
+            downPaymentPct: 25,
+            installmentYears: 4,
+            hasBullet: false,
+            bulletAmount: 0,
+            bulletYears: 0,
+            bulletIncluded: true,
+            maintPct: 5,
+            maintYear: 1,
+            finishingCost: 200000,
+            deliveryYear: 1,
+            initialAnnualRent: 500000,
+            rentEscalation: 10,
+            opexPct: 5,
+            appreciationPct: 10,
+            analysisHorizon: 10,
+          });
+          setSelectedYear(5);
+        }
+      };
+
+      // --- Core Financial Modeling Engine ---
+      const model = useMemo(() => {
+        const price = Number(inputs.totalPrice) || 0;
+        const dpPct = Number(inputs.downPaymentPct) || 0;
+        const dpAmount = price * (dpPct / 100);
+        const instYears = Math.max(1, Number(inputs.installmentYears) || 1);
+
+        const hasBullet = Boolean(inputs.hasBullet);
+        const bulletAmt = hasBullet ? (Number(inputs.bulletAmount) || 0) : 0;
+        const bulletYrs = hasBullet ? Math.max(0, Number(inputs.bulletYears) || 0) : 0;
+        const totalBullets = bulletAmt * bulletYrs;
+
+        // Calculate regular annual installment
+        let remainingForInstallments = price - dpAmount;
+        if (hasBullet && inputs.bulletIncluded) {
+          remainingForInstallments = Math.max(0, remainingForInstallments - totalBullets);
+        }
+        const regularAnnualInstallment = remainingForInstallments / instYears;
+
+        const maintDeposit = price * ((Number(inputs.maintPct) || 0) / 100);
+        const maintYear = Math.max(1, Number(inputs.maintYear) || 1);
+        const finishing = Number(inputs.finishingCost) || 0;
+        const deliveryYr = Math.max(1, Number(inputs.deliveryYear) || 1);
+
+        const baseRent = Number(inputs.initialAnnualRent) || 0;
+        const rentEsc = (Number(inputs.rentEscalation) || 0) / 100;
+        const opexRate = (Number(inputs.opexPct) || 0) / 100;
+        const apprRate = (Number(inputs.appreciationPct) || 0) / 100;
+        const horizon = Math.max(1, Math.min(30, Number(inputs.analysisHorizon) || 15));
+
+        const rows = [];
+        let cumulativeOutflow = 0;
+        let cumulativeNetRent = 0;
+        let cumulativeNetCashFlow = 0;
+        let cumulativeInstallmentsAndDP = 0;
+
+        let opBreakevenYear = null;
+        let fullPaybackYear = null;
+        let exactPaybackYears = null;
+
+        for (let y = 1; y <= horizon; y++) {
+          const dpThisYear = y === 1 ? dpAmount : 0;
+          const regInstThisYear = y <= instYears ? regularAnnualInstallment : 0;
+          const bulletThisYear = (hasBullet && y <= bulletYrs) ? bulletAmt : 0;
+          const maintThisYear = y === maintYear ? maintDeposit : 0;
+          const finishThisYear = y === deliveryYr ? finishing : 0;
+
+          const annualOutflow = dpThisYear + regInstThisYear + bulletThisYear + maintThisYear + finishThisYear;
+          cumulativeOutflow += annualOutflow;
+          cumulativeInstallmentsAndDP += (dpThisYear + regInstThisYear + bulletThisYear);
+
+          // Rental Income starts at deliveryYear
+          let grossRent = 0;
+          if (y >= deliveryYr) {
+            const rentYearsElapsed = y - deliveryYr;
+            grossRent = baseRent * Math.pow(1 + rentEsc, rentYearsElapsed);
+          }
+          const opex = grossRent * opexRate;
+          const netRentNOI = grossRent - opex;
+          cumulativeNetRent += netRentNOI;
+
+          const netCashFlow = netRentNOI - annualOutflow;
+          const prevCumCF = cumulativeNetCashFlow;
+          cumulativeNetCashFlow += netCashFlow;
+
+          // Break-even checks
+          if (opBreakevenYear === null && y >= deliveryYr && netCashFlow >= 0) {
+            opBreakevenYear = y;
+          }
+          if (fullPaybackYear === null && cumulativeNetRent >= cumulativeOutflow && cumulativeOutflow > 0) {
+            fullPaybackYear = y;
+            const unrecoveredBeforeThisYear = cumulativeOutflow - (cumulativeNetRent - netRentNOI);
+            const fraction = netRentNOI > 0 ? Math.max(0, Math.min(1, unrecoveredBeforeThisYear / netRentNOI)) : 0;
+            exactPaybackYears = (y - 1 + fraction).toFixed(1);
+          }
+
+          // Property Market Value at end of year y
+          const marketValue = price * Math.pow(1 + apprRate, y);
+          const prevMarketValue = price * Math.pow(1 + apprRate, y - 1);
+          const annualAppreciationGain = marketValue - prevMarketValue;
+          const cumulativeAppreciation = marketValue - price;
+
+          // Remaining Developer Debt
+          const totalDeveloperPrice = price + (hasBullet && !inputs.bulletIncluded ? totalBullets : 0);
+          const remainingDebt = Math.max(0, totalDeveloperPrice - cumulativeInstallmentsAndDP);
+
+          // Core Metrics
+          // 1. Equity Paid = cumulativeOutflow
+          const equityPaid = cumulativeOutflow;
+
+          // 2. Net Equity Invested = Equity Paid - Cumulative Net Rent (Unrecovered Equity from pocket)
+          const netEquityInvested = Math.max(0, equityPaid - cumulativeNetRent);
+
+          // Book Owner's Equity in Property = Market Value - Remaining Developer Debt
+          const ownerMarketEquity = Math.max(1, marketValue - remainingDebt);
+
+          // 3. Cash on Cash Return (CoC) = Annual Net Cash Flow / Equity Paid (or NOI / Equity Paid)
+          // Standard investor CoC = Annual Net Cash Flow / Equity Paid
+          const cashOnCash = equityPaid > 0 ? (netCashFlow / equityPaid) * 100 : 0;
+          const operatingCoC = equityPaid > 0 ? (netRentNOI / equityPaid) * 100 : 0;
+
+          // 4. Total ROI = (Cumulative Net Rent + Cumulative Appreciation - Maint - Finishing) / Equity Paid
+          const totalGain = cumulativeNetRent + cumulativeAppreciation - (y >= maintYear ? maintDeposit : 0) - (y >= deliveryYr ? finishing : 0);
+          const roi = equityPaid > 0 ? (totalGain / equityPaid) * 100 : 0;
+
+          // 5. ROE (Return on Equity) = (Annual NOI + Annual Appreciation) / Owner's Market Equity
+          const roe = ownerMarketEquity > 0 ? ((netRentNOI + annualAppreciationGain) / ownerMarketEquity) * 100 : 0;
+
+          // 6. ROA (Return on Assets) = Annual NOI / Property Market Value
+          const roa = marketValue > 0 ? (netRentNOI / marketValue) * 100 : 0;
+
+          // 7. Capital Recovery Rate % = Cumulative Net Rent / Equity Paid
+          const capitalRecoveryRate = equityPaid > 0 ? (cumulativeNetRent / equityPaid) * 100 : 0;
+
+          let status = "construction";
+          if (y === deliveryYr) status = "handover";
+          else if (y > deliveryYr) status = "rented";
+
+          rows.push({
+            year: y,
+            status,
+            dpThisYear,
+            regInstThisYear,
+            bulletThisYear,
+            maintThisYear,
+            finishThisYear,
+            annualOutflow,
+            grossRent,
+            opex,
+            netRentNOI,
+            netCashFlow,
+            cumulativeNetCashFlow,
+            equityPaid,
+            netEquityInvested,
+            marketValue,
+            ownerMarketEquity,
+            remainingDebt,
+            cashOnCash,
+            operatingCoC,
+            roi,
+            roe,
+            roa,
+            capitalRecoveryRate
+          });
+        }
+
+        const safeSelectedYear = Math.min(horizon, Math.max(1, selectedYear));
+        const currentYearData = rows[safeSelectedYear - 1] || rows[rows.length - 1];
+        const finalYearData = rows[rows.length - 1];
+
+        return {
+          dpAmount,
+          regularAnnualInstallment,
+          maintDeposit,
+          rows,
+          currentYearData,
+          finalYearData,
+          opBreakevenYear,
+          fullPaybackYear,
+          exactPaybackYears,
+          safeSelectedYear
+        };
+      }, [inputs, selectedYear]);
+
+      // Format Helpers
+      const fmtNum = (n) => {
+        if (n === undefined || n === null || isNaN(n)) return "0";
+        return Math.round(n).toLocaleString(lang === "ar" ? "en-US" : "en-US");
+      };
+
+      const fmtPct = (n) => {
+        if (n === undefined || n === null || isNaN(n)) return "0.0%";
+        return `${Number(n).toFixed(1)}%`;
+      };
+
+      // Export to Excel (UTF-8 BOM CSV)
+      const handleExportExcel = () => {
+        const headers = [
+          t.tableYear,
+          t.tableStatus,
+          t.tableOutflow,
+          t.tableRent,
+          t.tableNetCF,
+          t.legendCumCF,
+          t.tableEquityPaid,
+          t.tableNetEquity,
+          t.legendPropVal,
+          "Cash on Cash (%)",
+          "Total ROI (%)",
+          "ROE (%)",
+          "ROA (%)",
+          t.kpiCapRecovery + " (%)"
+        ];
+
+        const csvRows = [
+          headers.join(","),
+          ...model.rows.map((r) => [
+            r.year,
+            r.status === "construction" ? t.statusConstruction : r.status === "handover" ? t.statusHandover : t.statusRented,
+            Math.round(r.annualOutflow),
+            Math.round(r.netRentNOI),
+            Math.round(r.netCashFlow),
+            Math.round(r.cumulativeNetCashFlow),
+            Math.round(r.equityPaid),
+            Math.round(r.netEquityInvested),
+            Math.round(r.marketValue),
+            r.cashOnCash.toFixed(2),
+            r.roi.toFixed(2),
+            r.roe.toFixed(2),
+            r.roa.toFixed(2),
+            r.capitalRecoveryRate.toFixed(2)
+          ].join(","))
+        ].join("
+");
+
+        const blob = new Blob(["﻿" + csvRows], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `ProEstate_ROI_${inputs.propertyName.replace(/\s+/g, "_")}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      };
+
+      // Export / Print PDF
+      const handleExportPDF = () => {
+        window.print();
+      };
+
+      // SVG Chart Bounds
+      const maxAbsCF = Math.max(
+        ...model.rows.map((r) => Math.max(Math.abs(r.netCashFlow), Math.abs(r.cumulativeNetCashFlow), 1))
+      );
+      const maxValChart2 = Math.max(
+        ...model.rows.map((r) => Math.max(r.marketValue, r.equityPaid, 1))
+      );
+
+      return (
+        <div dir={isRTL ? "rtl" : "ltr"} className="min-h-screen pb-24 md:pb-12 bg-slate-50 text-slate-900">
+          {/* Top Header */}
+          <header className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white sticky top-0 z-30 shadow-lg border-b border-indigo-500/20">
+            <div className="max-w-7xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center shadow-md shadow-emerald-500/20">
+                  <Icon name="building" className="w-6 h-6 text-slate-950" />
+                </div>
+                <div>
+                  <h1 className="text-lg md:text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
+                    {t.appTitle}
+                    <span className="hidden sm:inline-block text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                      PRO v2.5
+                    </span>
+                  </h1>
+                  <p className="text-xs text-slate-300 hidden sm:block">{t.appSubtitle}</p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2 no-print">
+                <button
+                  onClick={handleExportExcel}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-sm"
+                  title={t.exportExcel}
+                >
+                  <Icon name="download" className="w-4 h-4" />
+                  <span>{t.exportExcel}</span>
+                </button>
+                <button
+                  onClick={handleExportPDF}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition shadow-sm"
+                  title={t.exportPDF}
+                >
+                  <Icon name="printer" className="w-4 h-4" />
+                  <span>{t.exportPDF}</span>
+                </button>
+                <button
+                  onClick={() => setLang(lang === "ar" ? "en" : "ar")}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-100 text-xs font-bold transition"
+                >
+                  <Icon name="globe" className="w-4 h-4 text-emerald-400" />
+                  <span>{lang === "ar" ? "English" : "عربي"}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Presets Bar */}
+            <div className="bg-slate-950/60 border-t border-slate-800/80 px-4 py-2 no-print">
+              <div className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar text-xs">
+                <span className="text-slate-400 font-semibold whitespace-nowrap">{t.presetsTitle}</span>
+                <button
+                  onClick={() => applyPreset("offplan")}
+                  className="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-900/60 text-slate-200 border border-slate-700 whitespace-nowrap transition"
+                >
+                  🏗️ {t.presetOffPlan}
+                </button>
+                <button
+                  onClick={() => applyPreset("commercial")}
+                  className="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-900/60 text-slate-200 border border-slate-700 whitespace-nowrap transition"
+                >
+                  🏢 {t.presetCommercial}
+                </button>
+                <button
+                  onClick={() => applyPreset("ready")}
+                  className="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-900/60 text-slate-200 border border-slate-700 whitespace-nowrap transition"
+                >
+                  🔑 {t.presetReady}
+                </button>
+              </div>
+            </div>
+          </header>
+
+          {/* Main Layout Grid */}
+          <main className="max-w-7xl mx-auto px-4 pt-5 grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* Left/Right Column: Inputs Form (Always visible on Desktop, Tab-controlled on Mobile) */}
+            <section className={`lg:col-span-4 space-y-5 no-print ${activeTab === "inputs" ? "block" : "hidden lg:block"}`}>
+              
+              {/* Card 1: Property & Developer Plan */}
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 space-y-4">
+                <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                  <span className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm">1</span>
+                  <h2 className="font-bold text-slate-800 text-sm md:text-base">{t.secProperty}</h2>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 mb-1">{t.propertyName}</label>
+                  <input
+                    type="text"
+                    value={inputs.propertyName}
+                    onChange={(e) => updateInput("propertyName", e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs font-bold text-slate-600 mb-1">
+                    <span>{t.totalPrice}</span>
+                    <span className="text-indigo-600">{fmtNum(inputs.totalPrice)} {t.currency}</span>
+                  </div>
+                  <input
+                    type="number"
+                    step="100000"
+                    value={inputs.totalPrice}
+                    onChange={(e) => updateInput("totalPrice", Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">{t.downPaymentPct}</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={inputs.downPaymentPct}
+                      onChange={(e) => updateInput("downPaymentPct", Number(e.target.value))}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                    <span className="text-[11px] text-slate-500 mt-0.5 block">
+                      = {fmtNum(model.dpAmount)} {t.currency}
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">{t.installmentYears}</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="20"
+                      value={inputs.installmentYears}
+                      onChange={(e) => updateInput("installmentYears", Number(e.target.value))}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                    <span className="text-[11px] text-emerald-600 font-semibold mt-0.5 block">
+                      {fmtNum(model.regularAnnualInstallment)} / {t.yearUnit}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2: Annual Bullet Payments & Maintenance */}
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 space-y-4">
+                <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                  <span className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-sm">2</span>
+                  <h2 className="font-bold text-slate-800 text-sm md:text-base">{t.secBullet}</h2>
+                </div>
+
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={inputs.hasBullet}
+                    onChange={(e) => updateInput("hasBullet", e.target.checked)}
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <span className="text-xs font-bold text-slate-700">{t.hasBullet}</span>
+                </label>
+
+                {inputs.hasBullet && (
+                  <div className="p-3.5 rounded-xl bg-amber-50/60 border border-amber-200/70 space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-700 mb-1">{t.bulletAmount}</label>
+                        <input
+                          type="number"
+                          step="25000"
+                          value={inputs.bulletAmount}
+                          onChange={(e) => updateInput("bulletAmount", Number(e.target.value))}
+                          className="w-full px-2.5 py-1.5 rounded-lg border border-amber-300 bg-white text-sm font-bold"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-700 mb-1">{t.bulletYears}</label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="15"
+                          value={inputs.bulletYears}
+                          onChange={(e) => updateInput("bulletYears", Number(e.target.value))}
+                          className="w-full px-2.5 py-1.5 rounded-lg border border-amber-300 bg-white text-sm font-bold"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">{t.bulletIncluded}</label>
+                      <select
+                        value={inputs.bulletIncluded ? "yes" : "no"}
+                        onChange={(e) => updateInput("bulletIncluded", e.target.value === "yes")}
+                        className="w-full px-2.5 py-1.5 rounded-lg border border-amber-300 bg-white text-xs font-bold text-slate-700"
+                      >
+                        <option value="yes">{t.bulletIncludedYes}</option>
+                        <option value="no">{t.bulletIncludedNo}</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">{t.maintPct}</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      value={inputs.maintPct}
+                      onChange={(e) => updateInput("maintPct", Number(e.target.value))}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold"
+                    />
+                    <span className="text-[11px] text-slate-500 mt-0.5 block">
+                      = {fmtNum(model.maintDeposit)} {t.currency}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">{t.maintYear}</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="15"
+                      value={inputs.maintYear}
+                      onChange={(e) => updateInput("maintYear", Number(e.target.value))}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 mb-1">{t.finishingCost}</label>
+                  <input
+                    type="number"
+                    step="50000"
+                    value={inputs.finishingCost}
+                    onChange={(e) => updateInput("finishingCost", Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold"
+                  />
+                </div>
+              </div>
+
+              {/* Card 3: Handover & Rental */}
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 space-y-4">
+                <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                  <span className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm">3</span>
+                  <h2 className="font-bold text-slate-800 text-sm md:text-base">{t.secRental}</h2>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 mb-0.5">{t.deliveryYear}</label>
+                  <span className="block text-[11px] text-slate-400 mb-1.5">{t.deliveryNote}</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max="15"
+                    value={inputs.deliveryYear}
+                    onChange={(e) => updateInput("deliveryYear", Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs font-bold text-slate-600 mb-1">
+                    <span>{t.initialAnnualRent}</span>
+                    <span className="text-emerald-600">{fmtNum(inputs.initialAnnualRent)} {t.currency}</span>
+                  </div>
+                  <input
+                    type="number"
+                    step="25000"
+                    value={inputs.initialAnnualRent}
+                    onChange={(e) => updateInput("initialAnnualRent", Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">{t.rentEscalation}</label>
+                    <input
+                      type="number"
+                      step="1"
+                      value={inputs.rentEscalation}
+                      onChange={(e) => updateInput("rentEscalation", Number(e.target.value))}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">{t.opexPct}</label>
+                    <input
+                      type="number"
+                      step="1"
+                      value={inputs.opexPct}
+                      onChange={(e) => updateInput("opexPct", Number(e.target.value))}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">{t.appreciationPct}</label>
+                    <input
+                      type="number"
+                      step="1"
+                      value={inputs.appreciationPct}
+                      onChange={(e) => updateInput("appreciationPct", Number(e.target.value))}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">{t.analysisHorizon}</label>
+                    <input
+                      type="number"
+                      min="3"
+                      max="30"
+                      value={inputs.analysisHorizon}
+                      onChange={(e) => updateInput("analysisHorizon", Number(e.target.value))}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold"
+                    />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Right/Left Column: Main Content Area */}
+            <section className="lg:col-span-8 space-y-6">
+              
+              {/* Year Selector Interactive Slider */}
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 md:p-5">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-1 rounded-lg bg-indigo-600 text-white text-xs font-extrabold">
+                      {t.yearWord} {model.safeSelectedYear}
+                    </span>
+                    <span className="text-xs md:text-sm font-bold text-slate-700">
+                      {t.selectedYearLabel}
+                    </span>
+                  </div>
+                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+                    model.currentYearData.status === "construction"
+                      ? "bg-amber-100 text-amber-800"
+                      : model.currentYearData.status === "handover"
+                      ? "bg-blue-100 text-blue-800"
+                      : "bg-emerald-100 text-emerald-800"
+                  }`}>
+                    {model.currentYearData.status === "construction"
+                      ? `🏗️ ${t.statusConstruction}`
+                      : model.currentYearData.status === "handover"
+                      ? `🔑 ${t.statusHandover}`
+                      : `🏢 ${t.statusRented}`}
+                  </span>
+                </div>
+
+                <input
+                  type="range"
+                  min="1"
+                  max={inputs.analysisHorizon}
+                  value={model.safeSelectedYear}
+                  onChange={(e) => setSelectedYear(Number(e.target.value))}
+                  className="w-full accent-indigo-600 cursor-pointer h-2 bg-slate-200 rounded-lg no-print"
+                />
+
+                <div className="flex justify-between text-[11px] font-bold text-slate-400 mt-1 no-print">
+                  <span>{t.yearWord} 1</span>
+                  <span>{t.statusHandover} ({t.yearWord} {inputs.deliveryYear})</span>
+                  <span>{t.yearWord} {inputs.analysisHorizon}</span>
+                </div>
+              </div>
+
+              {/* TAB: DASHBOARD & CHARTS */}
+              <div className={`${activeTab === "dashboard" || activeTab === "inputs" ? "block" : "hidden lg:block"} space-y-6`}>
+                
+                {/* 8 Core KPI Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+                  {/* 1. Equity Paid */}
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <div className="text-[11px] font-bold text-slate-500 mb-1">{t.kpiEquityPaid}</div>
+                    <div className="text-base md:text-lg font-extrabold text-slate-900">
+                      {fmtNum(model.currentYearData.equityPaid)} <span className="text-xs font-normal">{t.currency}</span>
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-1 leading-tight">{t.kpiEquityPaidSub}</div>
+                  </div>
+
+                  {/* 2. Net Equity Invested */}
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <div className="text-[11px] font-bold text-slate-500 mb-1">{t.kpiNetEquity}</div>
+                    <div className="text-base md:text-lg font-extrabold text-indigo-700">
+                      {fmtNum(model.currentYearData.netEquityInvested)} <span className="text-xs font-normal">{t.currency}</span>
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-1 leading-tight">{t.kpiNetEquitySub}</div>
+                  </div>
+
+                  {/* 3. Net Cash Flow */}
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <div className="text-[11px] font-bold text-slate-500 mb-1">{t.kpiNetCashFlow}</div>
+                    <div className={`text-base md:text-lg font-extrabold ${model.currentYearData.netCashFlow >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
+                      {fmtNum(model.currentYearData.netCashFlow)} <span className="text-xs font-normal">{t.currency}</span>
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-1 leading-tight">{t.kpiNetCashFlowSub}</div>
+                  </div>
+
+                  {/* 4. Cash on Cash */}
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <div className="text-[11px] font-bold text-slate-500 mb-1">{t.kpiCoC}</div>
+                    <div className={`text-base md:text-lg font-extrabold ${model.currentYearData.cashOnCash >= 0 ? "text-emerald-600" : "text-amber-600"}`}>
+                      {fmtPct(model.currentYearData.cashOnCash)}
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-1 leading-tight">{t.kpiCoCSub}</div>
+                  </div>
+
+                  {/* 5. Total ROI */}
+                  <div className="bg-gradient-to-br from-indigo-950 to-slate-900 text-white p-4 rounded-2xl shadow-sm">
+                    <div className="text-[11px] font-bold text-indigo-200 mb-1">{t.kpiROI}</div>
+                    <div className="text-lg md:text-xl font-extrabold text-emerald-400">
+                      {fmtPct(model.currentYearData.roi)}
+                    </div>
+                    <div className="text-[10px] text-slate-300 mt-1 leading-tight">{t.kpiROISub}</div>
+                  </div>
+
+                  {/* 6. ROE */}
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <div className="text-[11px] font-bold text-slate-500 mb-1">{t.kpiROE}</div>
+                    <div className="text-base md:text-lg font-extrabold text-indigo-600">
+                      {fmtPct(model.currentYearData.roe)}
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-1 leading-tight">{t.kpiROESub}</div>
+                  </div>
+
+                  {/* 7. ROA */}
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <div className="text-[11px] font-bold text-slate-500 mb-1">{t.kpiROA}</div>
+                    <div className="text-base md:text-lg font-extrabold text-teal-600">
+                      {fmtPct(model.currentYearData.roa)}
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-1 leading-tight">{t.kpiROASub}</div>
+                  </div>
+
+                  {/* 8. Capital Recovery Rate */}
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <div className="text-[11px] font-bold text-slate-500 mb-1">{t.kpiCapRecovery}</div>
+                    <div className="text-base md:text-lg font-extrabold text-emerald-700">
+                      {fmtPct(model.currentYearData.capitalRecoveryRate)}
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-1 leading-tight">{t.kpiCapRecoverySub}</div>
+                  </div>
+                </div>
+
+                {/* Break-Even & Capital Recovery Banner */}
+                <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white rounded-2xl p-5 shadow-md print-break-inside-avoid">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Icon name="clock" className="w-5 h-5 text-emerald-400" />
+                    <h3 className="font-extrabold text-sm md:text-base">{t.breakevenTitle}</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3.5 border border-white/15">
+                      <div className="text-xs text-emerald-200 font-bold">{t.opBreakeven}</div>
+                      <div className="text-xl font-black text-white mt-1">
+                        {model.opBreakevenYear ? `${t.yearWord} ${model.opBreakevenYear}` : t.notReached}
+                      </div>
+                      <div className="text-[11px] text-slate-300 mt-1">{t.opBreakevenDesc}</div>
+                    </div>
+
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3.5 border border-white/15">
+                      <div className="text-xs text-amber-200 font-bold">{t.fullPayback}</div>
+                      <div className="text-xl font-black text-white mt-1">
+                        {model.exactPaybackYears ? `${model.exactPaybackYears} ${t.yearUnit} (${t.yearWord} ${model.fullPaybackYear})` : t.notReached}
+                      </div>
+                      <div className="text-[11px] text-slate-300 mt-1">{t.fullPaybackDesc}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Interactive SVG Chart 1: Annual & Cumulative Cash Flow */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 print-break-inside-avoid">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <h3 className="font-bold text-slate-800 text-sm md:text-base flex items-center gap-2">
+                      <Icon name="chart" className="w-5 h-5 text-indigo-600" />
+                      <span>{t.chartCashFlowTitle}</span>
+                    </h3>
+                    <div className="flex items-center gap-4 text-xs font-semibold">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-3 h-3 rounded-sm bg-emerald-500 inline-block"></span>
+                        {t.legendNetCF} (+)
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-3 h-3 rounded-sm bg-rose-500 inline-block"></span>
+                        {t.legendNetCF} (-)
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-3 h-1 bg-indigo-600 inline-block"></span>
+                        {t.legendCumCF}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="w-full overflow-x-auto">
+                    <svg viewBox="0 0 720 250" className="w-full h-56 min-w-[500px]">
+                      {/* Zero Baseline */}
+                      <line x1="40" y1="125" x2="700" y2="125" stroke="#94a3b8" strokeWidth="1" strokeDasharray="4 4" />
+                      
+                      {model.rows.map((r, idx) => {
+                        const count = model.rows.length;
+                        const colWidth = 640 / count;
+                        const xCenter = 50 + idx * colWidth + colWidth / 2;
+                        const barWidth = Math.min(26, colWidth * 0.55);
+
+                        const barHeight = (Math.abs(r.netCashFlow) / maxAbsCF) * 95;
+                        const barY = r.netCashFlow >= 0 ? 125 - barHeight : 125;
+
+                        return (
+                          <g key={r.year} onClick={() => setSelectedYear(r.year)} className="cursor-pointer group">
+                            <rect
+                              x={xCenter - barWidth / 2}
+                              y={barY}
+                              width={barWidth}
+                              height={Math.max(2, barHeight)}
+                              rx="3"
+                              fill={r.netCashFlow >= 0 ? "#10b981" : "#f43f5e"}
+                              opacity={r.year === model.safeSelectedYear ? "1" : "0.75"}
+                            />
+                            <text
+                              x={xCenter}
+                              y="238"
+                              textAnchor="middle"
+                              fontSize="10"
+                              fontWeight={r.year === model.safeSelectedYear ? "800" : "500"}
+                              fill={r.year === model.safeSelectedYear ? "#4f46e5" : "#64748b"}
+                            >
+                              Y{r.year}
+                            </text>
+                          </g>
+                        );
+                      })}
+
+                      {/* Cumulative Cash Flow Polyline */}
+                      <polyline
+                        fill="none"
+                        stroke="#4f46e5"
+                        strokeWidth="2.5"
+                        points={model.rows
+                          .map((r, idx) => {
+                            const count = model.rows.length;
+                            const colWidth = 640 / count;
+                            const xCenter = 50 + idx * colWidth + colWidth / 2;
+                            const yPos = 125 - (r.cumulativeNetCashFlow / maxAbsCF) * 95;
+                            return `${xCenter},${yPos}`;
+                          })
+                          .join(" ")}
+                      />
+
+                      {model.rows.map((r, idx) => {
+                        const count = model.rows.length;
+                        const colWidth = 640 / count;
+                        const xCenter = 50 + idx * colWidth + colWidth / 2;
+                        const yPos = 125 - (r.cumulativeNetCashFlow / maxAbsCF) * 95;
+                        return (
+                          <circle
+                            key={`pt-${r.year}`}
+                            cx={xCenter}
+                            cy={yPos}
+                            r={r.year === model.safeSelectedYear ? "5" : "3"}
+                            fill="#4f46e5"
+                            stroke="#ffffff"
+                            strokeWidth="1.5"
+                          />
+                        );
+                      })}
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Interactive SVG Chart 2: Equity Paid vs Net Equity vs Property Value */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 print-break-inside-avoid">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <h3 className="font-bold text-slate-800 text-sm md:text-base flex items-center gap-2">
+                      <Icon name="trendingUp" className="w-5 h-5 text-emerald-600" />
+                      <span>{t.chartEquityTitle}</span>
+                    </h3>
+                    <div className="flex items-center gap-4 text-xs font-semibold">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-3 h-3 rounded-sm bg-slate-700 inline-block"></span>
+                        {t.legendEquityPaid}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-3 h-3 rounded-sm bg-amber-500 inline-block"></span>
+                        {t.legendNetEquity}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-3 h-1 bg-emerald-600 inline-block"></span>
+                        {t.legendPropVal}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="w-full overflow-x-auto">
+                    <svg viewBox="0 0 720 230" className="w-full h-52 min-w-[500px]">
+                      <line x1="40" y1="200" x2="700" y2="200" stroke="#cbd5e1" strokeWidth="1" />
+                      {model.rows.map((r, idx) => {
+                        const count = model.rows.length;
+                        const colWidth = 640 / count;
+                        const xCenter = 50 + idx * colWidth + colWidth / 2;
+                        const bw = Math.min(14, colWidth * 0.32);
+
+                        const eqH = (r.equityPaid / maxValChart2) * 170;
+                        const netEqH = (r.netEquityInvested / maxValChart2) * 170;
+
+                        return (
+                          <g key={`eq-${r.year}`} onClick={() => setSelectedYear(r.year)} className="cursor-pointer">
+                            <rect
+                              x={xCenter - bw - 1}
+                              y={200 - eqH}
+                              width={bw}
+                              height={Math.max(2, eqH)}
+                              rx="2"
+                              fill="#334155"
+                            />
+                            <rect
+                              x={xCenter + 1}
+                              y={200 - netEqH}
+                              width={bw}
+                              height={Math.max(2, netEqH)}
+                              rx="2"
+                              fill="#f59e0b"
+                            />
+                            <text
+                              x={xCenter}
+                              y="218"
+                              textAnchor="middle"
+                              fontSize="10"
+                              fill="#64748b"
+                            >
+                              Y{r.year}
+                            </text>
+                          </g>
+                        );
+                      })}
+
+                      {/* Market Value Line */}
+                      <polyline
+                        fill="none"
+                        stroke="#059669"
+                        strokeWidth="2.5"
+                        points={model.rows
+                          .map((r, idx) => {
+                            const count = model.rows.length;
+                            const colWidth = 640 / count;
+                            const xCenter = 50 + idx * colWidth + colWidth / 2;
+                            const yPos = 200 - (r.marketValue / maxValChart2) * 170;
+                            return `${xCenter},${yPos}`;
+                          })
+                          .join(" ")}
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* TAB: FULL SCHEDULE TABLE */}
+              <div className={`${activeTab === "schedule" ? "block" : "hidden lg:block"} bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden`}>
+                <div className="p-4 md:p-5 border-b border-slate-100 flex items-center justify-between">
+                  <h3 className="font-bold text-slate-800 text-sm md:text-base flex items-center gap-2">
+                    <Icon name="table" className="w-5 h-5 text-indigo-600" />
+                    <span>{t.navSchedule} ({inputs.analysisHorizon} {t.yearUnit})</span>
+                  </h3>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-start border-collapse">
+                    <thead>
+                      <tr className="bg-slate-900 text-slate-100 font-bold">
+                        <th className="py-3 px-3 text-start">{t.tableYear}</th>
+                        <th className="py-3 px-3 text-start">{t.tableStatus}</th>
+                        <th className="py-3 px-3 text-end">{t.tableOutflow}</th>
+                        <th className="py-3 px-3 text-end">{t.tableRent}</th>
+                        <th className="py-3 px-3 text-end">{t.tableNetCF}</th>
+                        <th className="py-3 px-3 text-end">{t.tableEquityPaid}</th>
+                        <th className="py-3 px-3 text-end">{t.tableNetEquity}</th>
+                        <th className="py-3 px-3 text-end">{t.tableCoC}</th>
+                        <th className="py-3 px-3 text-end">{t.tableROI}</th>
+                        <th className="py-3 px-3 text-end">{t.tableROE}</th>
+                        <th className="py-3 px-3 text-end">{t.tableROA}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {model.rows.map((r) => {
+                        const isSelected = r.year === model.safeSelectedYear;
+                        return (
+                          <tr
+                            key={r.year}
+                            onClick={() => setSelectedYear(r.year)}
+                            className={`cursor-pointer transition ${
+                              isSelected ? "bg-indigo-50/90 font-bold" : "hover:bg-slate-50"
+                            }`}
+                          >
+                            <td className="py-2.5 px-3 font-extrabold text-indigo-950">Y{r.year}</td>
+                            <td className="py-2.5 px-3 whitespace-nowrap">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                r.status === "construction"
+                                  ? "bg-amber-100 text-amber-800"
+                                  : r.status === "handover"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-emerald-100 text-emerald-800"
+                              }`}>
+                                {r.status === "construction" ? t.statusConstruction : r.status === "handover" ? t.statusHandover : t.statusRented}
+                              </span>
+                            </td>
+                            <td className="py-2.5 px-3 text-end text-rose-600">{fmtNum(r.annualOutflow)}</td>
+                            <td className="py-2.5 px-3 text-end text-emerald-600">{fmtNum(r.netRentNOI)}</td>
+                            <td className={`py-2.5 px-3 text-end font-bold ${r.netCashFlow >= 0 ? "text-emerald-700" : "text-rose-700"}`}>
+                              {fmtNum(r.netCashFlow)}
+                            </td>
+                            <td className="py-2.5 px-3 text-end text-slate-800">{fmtNum(r.equityPaid)}</td>
+                            <td className="py-2.5 px-3 text-end text-indigo-700">{fmtNum(r.netEquityInvested)}</td>
+                            <td className="py-2.5 px-3 text-end">{fmtPct(r.cashOnCash)}</td>
+                            <td className="py-2.5 px-3 text-end font-bold text-indigo-700">{fmtPct(r.roi)}</td>
+                            <td className="py-2.5 px-3 text-end">{fmtPct(r.roe)}</td>
+                            <td className="py-2.5 px-3 text-end">{fmtPct(r.roa)}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </section>
+          </main>
+
+          {/* Mobile Bottom Navigation Bar */}
+          <nav className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 shadow-xl z-40 grid grid-cols-3 py-2 no-print">
+            <button
+              onClick={() => setActiveTab("inputs")}
+              className={`flex flex-col items-center justify-center py-1 text-xs font-bold ${
+                activeTab === "inputs" ? "text-indigo-600" : "text-slate-500"
+              }`}
+            >
+              <Icon name="sliders" className="w-5 h-5 mb-0.5" />
+              <span>{t.navInputs}</span>
+            </button>
+            <button
+              onClick={() => setActiveTab("dashboard")}
+              className={`flex flex-col items-center justify-center py-1 text-xs font-bold ${
+                activeTab === "dashboard" ? "text-indigo-600" : "text-slate-500"
+              }`}
+            >
+              <Icon name="chart" className="w-5 h-5 mb-0.5" />
+              <span>{t.navDashboard}</span>
+            </button>
+            <button
+              onClick={() => setActiveTab("schedule")}
+              className={`flex flex-col items-center justify-center py-1 text-xs font-bold ${
+                activeTab === "schedule" ? "text-indigo-600" : "text-slate-500"
+              }`}
+            >
+              <Icon name="table" className="w-5 h-5 mb-0.5" />
+              <span>{t.navSchedule}</span>
+            </button>
+          </nav>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>
